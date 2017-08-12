@@ -37,7 +37,7 @@ def config_cp(code, tab = 4, spa = ':', spr = '{', t = 0, context = ''):
     
     return context
 
-def uwsgi_config(path, project, main_file, main_route, port, processes = 1, threads = 4):
+def uwsgi_config(path, project, main_file, main_route, port, processes = '1', threads = '4'):
     os.chdir(path)
     os.chdir(project)
 
