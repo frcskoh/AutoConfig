@@ -23,20 +23,6 @@ def builder():
     
     return f
 
-def config_cp(code, tab = 4, spa = ':', spr = '{', t = 0, context = ''):
-    code = iter(code)
-    
-    for line in code:
-        context += ''.zfill(tab * t) + line + '\n'
-        if not line.find('{') < 0:
-             context += config_cp(next(code), tab, spa, spr, t + 1, context)
-             while next(code).find('}') < 0: next(code)
-        elif not line.find('}') < 0:
-            context += ''.zfill(tab * t) + line + '\n'
-            break
-    
-    return context
-
 def uwsgi_config(path, project, main_file, main_route, port, processes = '1', threads = '4'):
     os.chdir(path)
     os.chdir(project)
@@ -53,23 +39,8 @@ def uwsgi_config(path, project, main_file, main_route, port, processes = '1', th
     f.write('threads = ' + threads + '\n')
     
     f.write('buffer-size = 32768\n')
-
-##    code = []
-##    code.append('[uwsgi]')
-##    code.append('master = true')
-##    code.append('home = ENV')
-##    code.append('wsgi-file = ' + main_file)
-##    code.append('callable = ' + main_route)
-##    code.append('socket = :' + port)
-##    code.append('processes = ' + str(processes))
-##    code.append('threads = ' + str(threads))
-##    code.append('buffer-size = 32768')
-##
-##    print(config_cp(code))
       
     f.close()
-
-    
 
     info_trprint('Config the uwsgi successfully.')
     return 
@@ -128,6 +99,7 @@ def setup(config):
 
     info_trprint('running the run.py to start the process.')
 
+    #if input('Add a auto-update task ? (y/n)').lower() in ('y', 'yes'): reg_setup('', 'git pull origin next')
 def reader():
     if os.path.exists('setup_config.dat'):
         f = open('setup_config.dat')
