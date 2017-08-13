@@ -1,5 +1,6 @@
 import os, json, sys
 from linux_oper import *
+from pprint import pprint
 
 def builder():
     config = {}
@@ -9,21 +10,25 @@ def builder():
     config.update({'git_URL' : input('Enter the URL of the git : ')})
     config.update({'main_file' : input('Enter the name of the main file : ')})
     config.update({'main_route' : input('Enter the name of the main route : ')})
+    config.update({'ip' : input('Enter the ip address of the service : ')})
     config.update({'host' : input('Enter the address of the localhost : ')})
-    config.update({'port' : input('Enter the port : ')})
+    config.update({'local_port' : input('Enter the local port : ')})
+    config.update({'public port' : input('Enter the public port : ')})
     
-    info_trprint('Create the co nfig file.')
-    print(config)
-    
-    f = open('setup_config.dat', 'w')
-    json.dump(config, f)
-    f.close()
-
-    if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup(config)
+    info_trprint('Creating the config file.')
+    try:
+        pprint(config)
+        f = open('setup_config.dat', 'w')
+        json.dump(config, f)
+        f.close()
+    except:
+        trprint('error !')
+    else:
+        if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup(config)
     
     return f
 
-def uwsgi_config(path, project, main_file, main_route, port, processes = '1', threads = '4'):
+def uwsgi_config(path, project, main_file, main_route, local_port, processes = '1', threads = '4'):
     os.chdir(path)
     os.chdir(project)
 
@@ -34,7 +39,7 @@ def uwsgi_config(path, project, main_file, main_route, port, processes = '1', th
     f.write('home = ENV\n')
     f.write('wsgi-file = ' + main_file + '\n')
     f.write('callable = ' + main_route + '\n')
-    f.write('socket = :' + port + '\n')
+    f.write('socket = :' + local_port + '\n')
     f.write('processes = ' + processes + '\n')
     f.write('threads = ' + threads + '\n')
     
@@ -45,7 +50,7 @@ def uwsgi_config(path, project, main_file, main_route, port, processes = '1', th
     info_trprint('Config the uwsgi successfully.')
     return 
     
-def nginx_config(project, ip, port, path, localhost, main_file, main_route):
+def nginx_config(project, ip, public_port, path, localhost, main_file, main_route):
     os.chdir('/etc/nginx/sites-enabled/')
     if os.path.exists('default'): os.remove('default')
 
@@ -53,7 +58,7 @@ def nginx_config(project, ip, port, path, localhost, main_file, main_route):
     tab = 4
     
     f.write('server {\n')
-    f.write(''.center(tab));f.write('listen ' + port + ';\n')
+    f.write(''.center(tab));f.write('listen ' + public_port + ';\n')
     f.write(''.center(tab));f.write('server_name ' + ip + ';\n')
     f.write(''.center(tab));f.write('access_log ' + path + '/logs/access.log;\n')
     f.write(''.center(tab));f.write('error_log ' + path + '/logs/error.log;\n')
@@ -92,14 +97,16 @@ def setup(config):
     #install
     os.chdir(os.path.join(config['path'], config['project']))
     pip_install(('-r requirements.txt', 'uwsgi'), 'ENV/bin/')
-    uwsgi_config(config['path'], config['project'], config['main_file'], config['main_route'], '8888')
+    uwsgi_config(config['path'], config['project'], config['main_file'], config['main_route'], config['local_port'])
 
     #Nginx config
-    nginx_config(config['project'], config['host'], config['port'], config['path'], config['host'], config['main_file'], config['main_route'])
+    nginx_config(config['project'], config['ip'], config['port'], config['path'], config['host'], config['main_file'], config['main_route'])
 
-    info_trprint('running the run.py to start the process.')
-
-    #if input('Add a auto-update task ? (y/n)').lower() in ('y', 'yes'): reg_setup('', 'git pull origin next')
+    
+    if input('Starting the service now ? (y/n)').lower() in ('y', 'yes'):
+        import manage
+        manage.start()
+    
 def reader():
     if os.path.exists('setup_config.dat'):
         f = open('setup_config.dat')
@@ -108,7 +115,6 @@ def reader():
 
         apt_install(('pip3 -y', ))
         pip_install(('pprint', ))
-        from pprint import pprint
         
         info_trprint(' ')
         pprint(config)

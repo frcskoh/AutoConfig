@@ -43,7 +43,7 @@ def auto_start_setup(url):
 
 def pip_install(name, cof = ''):
     for app in name:
-        os.system(cof + 'pip3 install ' + app)
+        os.system("".join([cof, 'pip3 install ', app]))
     return None
 
 def apt_install(name):
@@ -53,5 +53,19 @@ def apt_install(name):
         trprint('')
         info_trprint('installing ' + app.split()[0])
         trprint('')
-        os.system('apt-get install ' + app)
+        try:
+            os.system('apt-get install ' + app)
+        except:
+            trprint('error !')
+        else:
+            trprint("Installed successfully.")
     return None
+
+def port_unlocker(port):
+    for j in [i.split()[1] for i in os.popen("".join(['lsof -i :', port])).read().split('\n')[1:-1]]:
+        try:
+            os.system("".join(['kill -9 ', j]))
+        except:
+            trprint('error !')
+        else:
+            trprint("".join(["Killed task : PID ", j]))
