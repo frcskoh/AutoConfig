@@ -1,55 +1,63 @@
 import os, sys, json
 from linux_oper import *
 
+def gunicorn_start(config):
+    ShellRun('nohup gunicorn -w 4 --threads=4 --chdir=%s %s:%s -b %s:%s &' % (
+            os.path.join(config['path'], config['project']), 
+            config['main_file'], config['main_route'], 
+            config['host'], config['local_port']))
 def stop():
     try:
         with open('setup_config.dat', 'r') as f:
             json.load(config, f)
         port_unlocker(config['port'])
     except:
-        trprint('error !')
+        trprint('error ! Config file NOT found. ')
     else:
-        trprint('uWSGI service stopped.')
-        if input('Stop the nginx service now ? (y/n)').lower() in ('y', 'yes'):
-            os.system('nginx -s stop')
-    return None
+        trprint('Web Service stopped.')
+        if input('Stop the nginx service ? (y/n)').lower() in ('y', 'yes'):
+            ShellRun('nginx -s stop')
 
 def start():
+    global config
     try:
         port_unlocker(config['port'])
-        os.system("".join('nohup gunicorn --workers=4 ', config['main_file'], ':', config['main_route'], '-b',
-                          config['host:config'], ':', config['local_port'], '&')) 
+        gunicorn_start(config)
     except:
         trprint('error !')
     else:  
         try:
-            os.system('service nginx start')
+            ShellRun('service nginx start')
         except:
             trprint('error !')
         else:
-            print('Task Started. ')
-    return None
+            trprint('Task Started. ')
 
 def reload():
+    global config
     try:
-        os.system('git pull -a')
+        ShellRun('git pull -f')
         port_unlocker(config['port'])
     except:
         trprint('Error !')
     else:
-        print('Update the file and Killed the task')
+        print('Updated the file and Killed the task')
         try:
             os.system('nginx -s restart')
+            gunicorn_start(config)
+        except:
+            trprint('Error !')
+        else:
+            print('Started the task successfullly. ')
 
-switch = {'start' : start, 'restart' : restart, 'stop' : stop}
-
+switch = {'start' : start, 'restart' : reload, 'stop' : stop}
 try:
-    switch[sys.argv[1]]()
     try:
         with open('setup_config.dat', 'r') as f: json.load(config, f)
     except:
         trprint('Error ! Config file not found. ')
     else:
-        trprint('Found the config file. ')     
+        trprint('Found the config file. ')
+    switch[sys.argv[1]]()
 except:
     print('Cannot find this command.')

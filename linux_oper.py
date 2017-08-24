@@ -1,9 +1,24 @@
 import os
 
-def trprint(sp):
-    os.system('echo ' + sp + '\n')
-    return None
+def trprint(content):
+    os.system('echo ' + content + '\n')
+    
+def ShellRun(command, hint = None):
+    trprint(command)
+    try:
+        os.system(command)
+        if hint:
+            trprint(hint)
+    except:
+        trprint('Error. Try to excute "%s" but failed. ', command)
 
+def get_ip():
+    from requests import get as get
+    try:
+        return get('http://checkip.dyndns.org/').text.split(':')[1].strip().split('<')[0]
+    except:
+        trprint('Network error. ')
+    
 def info_trprint(sp):
     os.system('echo ' + sp.center(100, '*') + '\n')
     return None
@@ -14,53 +29,35 @@ def task_kill(name):
     for i in k:
         if i.split()[-1] in name:
             os.system('kill -9 ' + i.split()[1])
-            trprint("Found and kill the task.")
-    return None
-
+            trprint("Found and kill the %s.", i.split()[-1])
+    trprint("Task %s has been kill. " % (name))
+    
 def reg_setup(cof, command):
     try:
-        f = open('/etc/crontab' ,'w+')
-        f.writeline(cof + ' ' + command)
-        f.close()
+        with open('/etc/crontab', 'w+') as f:
+            f.write("%s %s \n" % (cof, command))
     except:
-        trprint("Error.")
+        trprint("reg_setup Error.")
     else:
-        trprint("Added regual task successfully.")
-    finally:
-        return None
+        trprint("Added %s successfully." % (command))
 
-def auto_start_setup(url):
-    try:
-        with open('/etc/rc.d/rc.local' , 'w+') as f:
-            f.write(url + '\n')
-    except:
-        trprint("Error.")
-    else:
-        trprint("Added auto start task successfully.")
-    finally:
-        return None
-
-def pip_install(app, cof = ''):
-    os.system("".join([cof, 'pip3 install ', app]))
-    return None
+def pip_install(app_name, cof = ''):
+    ShellRun("%s pip3 install %s" % (cof, app_name))
 
 def apt_install(app):
-    trprint('')
-    info_trprint('installing ' + app.split()[0])
-    trprint('')
     try:
-        os.system('apt-get install ' + app)
+        trprint('Installing ' + app.split()[0])
+        ShellRun('apt-get install -y ' + app)
     except:
-        trprint('error !')
+        trprint('Error !')
     else:
-        trprint("Installed successfully.")
-    return None
+        trprint("Installed %s successfully." % (app.split()[0]))
 
 def port_unlocker(port):
     for j in [i.split()[1] for i in os.popen("".join(['lsof -i :', port])).read().split('\n')[1:-1]]:
         try:
-            os.system("".join(['kill -9 ', j]))
+            ShellRun("kill -9 %s" % (j))
         except:
-            trprint('error !')
+            trprint('Error !')
         else:
-            trprint("".join(["Killed task : PID ", j]))
+            trprint("Killed task : PID %s" % (j))
