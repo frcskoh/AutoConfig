@@ -27,9 +27,9 @@ def task_kill(name):
     k = os.popen('ps -aux').read().split('\n')[1:]
 
     for i in k:
-        if i.split()[-1] in name:
+        if i.split()[10] == name:
             os.system('kill -9 ' + i.split()[1])
-            trprint("Found and kill the %s.", i.split()[-1])
+            trprint("Found and kill the %s.", i.split()[10])
     trprint("Task %s has been kill. " % (name))
     
 def reg_setup(cof, command):

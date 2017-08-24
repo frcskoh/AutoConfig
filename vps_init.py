@@ -6,8 +6,8 @@ BBR_url = 'https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh'
 work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 comper = ('git', 'python-pip', 'python3-pip', 'python-build',
           'gcc', 'nginx', 'sysv-rc-conf',
-          'make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev',
-          'pyenv')
+          'make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget', 
+          'curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev')
 
 def SSR_install(install_path = '/root'):
     global SSR_giturl
@@ -27,7 +27,7 @@ def SSR_install(install_path = '/root'):
             f.write('git pull\n')        
         reg_setup('00 00 * * *', 'bash ' + os.path.abspath('update.sh'))
         
-        ShellRun('bash %s', os.path.join(install_path, 'shadowsocksr', 'initcfg.sh'))
+        ShellRun('bash %s' % (os.path.join(install_path, 'shadowsocksr', 'initcfg.sh')))
         shutil.move(config_url, os.path.join(install_path, 'shadowsocksr', 'user-config.json'))
         ShellRun('chmod +x *.sh')
     
@@ -35,7 +35,7 @@ def SSR_install(install_path = '/root'):
         ShellRun('chmod +x *.sh')
         ShellRun('sysv-rc-conf ' + os.path.abspath('logrun.sh') + ' on', hint = 'Adding the auto-start task successfully. ')
         try:
-            ShellRun('wget -N --no-check-certificate %s && chmod +x bbr.sh && bash bbr.sh', BBR_url)
+            ShellRun('wget -N --no-check-certificate %s && chmod +x bbr.sh && bash bbr.sh' % (BBR_url))
         except:
             trprint('Installed the BBR Failed.')
         else:
@@ -51,9 +51,14 @@ def pyenv_install():
     else:
         print('pyenv_install ' + 'success')
 
+    with open('/root/.bash_profile', 'w') as f:
+            f.write('export PYENV_ROOT="$HOME/.pyenv"\n')
+            f.write('export PATH="$PYENV_ROOT/bin:$PATH"\n')
+            f.write('eval "$(pyenv init -)"\n')
+
 def SSH_config():
     try:
-        with open('/etc/ssh/sshd_config', 'w+'):
+        with open('/etc/ssh/sshd_config', 'w+') as f:
             f.write('ClientAliveInterval 30\n')
             f.write('ClientAliveCountMax 10000\n')
     except IOError:
@@ -63,7 +68,6 @@ def SSH_config():
 
 #init
 trprint("Now the file is in %s" % (work_path))
-task_kill('apt-get')
 ShellRun('apt-get update')
 ShellRun('apt-get -y upgrade')
 for app in comper: apt_install(app)
