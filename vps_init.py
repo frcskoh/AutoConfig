@@ -51,21 +51,20 @@ def pyenv_install():
     else:
         print('pyenv_install ' + 'success')
 
-    with open('/root/.bash_profile', 'w') as f:
-            f.append('export PYENV_ROOT="$HOME/.pyenv"\n')
-            f.append('export PATH="$PYENV_ROOT/bin:$PATH"\n')
-            f.append('eval "$(pyenv init -)"\n')
+    with open('/root/.bashrc', 'a+') as f:
+            f.write('export PATH="/root/.pyenv/bin:$PATH"\n')
+            f.write('eval "$(pyenv init -)"\n')
+            f.write('eval "$(pyenv virtualenv-init -)"\n')
 
 def SSH_config():
     try:
-        with open('/etc/ssh/sshd_config', 'w+') as f:
-            f.append('ClientAliveInterval 300\n')
-            f.append('ClientAliveCountMax 10000\n')
+        with open('/etc/ssh/sshd_config', 'a+') as f:
+            f.write('ClientAliveInterval 300\n')
+            f.write('ClientAliveCountMax 10000\n')
     except IOError:
         trprint('ssh_config NOT found. ')
     else:
         trprint('Setting the ssh_config successfully. ')
-        ShellRun('sevice ssh restart')
 
 #init
 trprint("Now the file is in %s" % (work_path))

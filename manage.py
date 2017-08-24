@@ -4,23 +4,23 @@ work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
 def receive():
     trprint(os.path.join(work_path, 'setup_config.dat'))
-    config = None
     try:
-        with open(os.path.join(work_path, 'setup_config.dat'), 'r') as f: json.load(config, f)
+        with open(os.path.join(work_path, 'setup_config.dat'), 'r') as f: config = json.load(f)
     except IOError:
         trprint('Error ! Config file not found. ')
     else:
+        print(config)
         return config
 
-def gunicorn_start(config):
-    ShellRun('nohup gunicorn -w 4 --threads=4 --chdir=%s %s:%s -b %s:%s \&' % (
-            os.path.join(config['path'], config['project']), 
-            config['main_file'], config['main_route'], 
-            config['host'], config['local_port']))
+def gunicorn_start(config, thread = '4', worker = '4'):
+    ShellRun('nohup gunicorn -w %s --threads %s --chdir %s -b %s:%s %s:%s \&' % (
+            worker, thread, os.path.join(config['path'], config['project']),
+            config['host'], config['local_port'], 
+            config['main_file'].split('.')[0], config['main_route']))
 
 def stop(config):
     try:
-        port_unlocker(config['port'])
+        port_unlocker(config['local_port'])
     except:
         trprint('error ! Config file NOT found. ')
     else:
@@ -30,22 +30,23 @@ def stop(config):
 
 def start(config):
     try:
-        port_unlocker(config['port'])
-        gunicorn_start(config)
+        port_unlocker(config['local_port'])
+        
     except:
-        trprint('error !')
-    else:  
+        trprint('Read the config Error !')
+    else:
+        gunicorn_start(config)
         try:
             ShellRun('service nginx start')
         except:
-            trprint('error !')
+            trprint('Starting the nginx Error !')
         else:
             trprint('Task Started. ')
 
 def reload(config):
     try:
         ShellRun('git pull -f')
-        port_unlocker(config['port'])
+        port_unlocker(config['local_port'])
     except:
         trprint('Error !')
     else:

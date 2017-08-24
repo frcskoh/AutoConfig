@@ -3,7 +3,7 @@ from linux_oper import *
 work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 version = "3.6.2"
 
-app = ('build-essential', 'python3-dev', 'nginx', 'git', 'pyenv')
+app = ('build-essential', 'python3-dev', 'nginx', 'git', 'gunicorn')
 module = ('virtualenv', )
 
 def builder():
@@ -34,18 +34,18 @@ def nginx_config(config):
     work_path = os.path.join(config['path'], config['project'])
     tab = 4
     try:
-        with open(os.path.join('/etc/nginx/sites-enabled/', 'default'), 'w+') as f:
-            f.append('server {\n')
-            f.append(''.center(tab));f.append('listen %s;\n' % (config['public_port']))
-            f.append(''.center(tab));f.append('server_name %s;\n' % (config['ip']))
-            f.append(''.center(tab));f.append('location / {\n')
-            f.append(''.center(tab * 2));f.append('proxy_pass http://%s:%s;\n' & (config['localhost'], config['local_port']))
-            f.append(''.center(tab * 2));f.append('proxy_redirect     off;\n')
-            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Real-IP            $remote_addr;\n')
-            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;\n')
-            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Forwarded-Proto    $scheme;\n')
-            f.append(''.center(tab));f.append('}\n')
-            f.append('}\n')
+        with open(os.path.join('/etc/nginx/sites-enabled/', 'default'), 'a+') as f:
+            f.write('server {\n')
+            f.write(''.center(tab));f.write('listen %s;\n' % (config['public_port']))
+            f.write(''.center(tab));f.write('server_name %s;\n' % (config['ip']))
+            f.write(''.center(tab));f.write('location / {\n')
+            f.write(''.center(tab * 2));f.write('proxy_pass http://%s:%s;\n' & (config['localhost'], config['local_port']))
+            f.write(''.center(tab * 2));f.write('proxy_redirect     off;\n')
+            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Real-IP            $remote_addr;\n')
+            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;\n')
+            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Forwarded-Proto    $scheme;\n')
+            f.write(''.center(tab));f.write('}\n')
+            f.write('}\n')
     except:
         print('Building the nginx config file error. ')
     else:
@@ -54,6 +54,11 @@ def nginx_config(config):
             ShellRun('mklink -d /etc/nginx/sites-enabled/default' + ' /etc/nginx/sites-available/default')
                     
 def setup(config):
+    global work_path
+    global config_path
+    global manage_path
+    global oper_path
+    
     safe_command = ('apt-get', 'pip', 'git')
     for i in safe_command: task_kill(i)
     for i in app: apt_install(i)
