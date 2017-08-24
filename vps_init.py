@@ -3,7 +3,6 @@ from linux_oper import *
 
 SSR_giturl = 'https://github.com/shadowsocksr-backup/shadowsocksr.git'
 BBR_url = 'https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh'
-AutoConfig_url = 'https://github.com/frcskoh/AutoConfig.git'
 work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 comper = ('git', 'python-pip', 'python3-pip', 'python-build',
           'gcc', 'nginx', 'sysv-rc-conf',
@@ -68,7 +67,6 @@ task_kill('apt-get')
 ShellRun('apt-get update')
 ShellRun('apt-get -y upgrade')
 for app in comper: apt_install(app)
-ShellRun('git clone https://github.com/frcskoh/AutoConfig.git')
 
 step = {
     'ssh_config' : SSH_config,
