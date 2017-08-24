@@ -9,10 +9,10 @@ def info_trprint(sp):
     return None
 
 def task_kill(name):
-    k = os.popen('ps -aux').read().split('\n')
+    k = os.popen('ps -aux').read().split('\n')[1:]
 
     for i in k:
-        if i.split()[:-1] in name:
+        if i.split()[-1] in name:
             os.system('kill -9 ' + i.split()[1])
             trprint("Found and kill the task.")
     return None
@@ -31,9 +31,8 @@ def reg_setup(cof, command):
 
 def auto_start_setup(url):
     try:
-        f = open('/etc/rc.local' , 'w+')
-        f.writeline(url)
-        f.close()
+        with open('/etc/rc.d/rc.local' , 'w+') as f:
+            f.write(url + '\n')
     except:
         trprint("Error.")
     else:
@@ -41,24 +40,20 @@ def auto_start_setup(url):
     finally:
         return None
 
-def pip_install(name, cof = ''):
-    for app in name:
-        os.system("".join([cof, 'pip3 install ', app]))
+def pip_install(app, cof = ''):
+    os.system("".join([cof, 'pip3 install ', app]))
     return None
 
-def apt_install(name):
-    os.system('apt-get update -y')
-    os.system('apt-get upgrade -y')
-    for app in name:
-        trprint('')
-        info_trprint('installing ' + app.split()[0])
-        trprint('')
-        try:
-            os.system('apt-get install ' + app)
-        except:
-            trprint('error !')
-        else:
-            trprint("Installed successfully.")
+def apt_install(app):
+    trprint('')
+    info_trprint('installing ' + app.split()[0])
+    trprint('')
+    try:
+        os.system('apt-get install ' + app)
+    except:
+        trprint('error !')
+    else:
+        trprint("Installed successfully.")
     return None
 
 def port_unlocker(port):
