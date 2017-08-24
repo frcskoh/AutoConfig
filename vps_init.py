@@ -24,7 +24,7 @@ def SSR_install(install_path = '/root'):
 
         with open('update.sh', 'w') as f:
             f.write('cd ' + os.path.join(install_path, 'shadowsocksr') + '\n')
-            f.write('git pull\n')        
+            f.write('git pull\n')
         reg_setup('00 00 * * *', 'bash ' + os.path.abspath('update.sh'))
         
         ShellRun('bash %s' % (os.path.join(install_path, 'shadowsocksr', 'initcfg.sh')))
@@ -52,9 +52,9 @@ def pyenv_install():
         print('pyenv_install ' + 'success')
 
     with open('/root/.bash_profile', 'w') as f:
-            f.write('export PYENV_ROOT="$HOME/.pyenv"\n')
-            f.write('export PATH="$PYENV_ROOT/bin:$PATH"\n')
-            f.write('eval "$(pyenv init -)"\n')
+            f.append('export PYENV_ROOT="$HOME/.pyenv"\n')
+            f.append('export PATH="$PYENV_ROOT/bin:$PATH"\n')
+            f.append('eval "$(pyenv init -)"\n')
 
 def SSH_config():
     try:
