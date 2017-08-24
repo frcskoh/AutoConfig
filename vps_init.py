@@ -3,6 +3,7 @@ from linux_oper import *
 
 SSR_giturl = 'https://github.com/shadowsocksr-backup/shadowsocksr.git'
 BBR_url = 'https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh'
+AutoConfig_url = 'https://github.com/frcskoh/AutoConfig.git'
 work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 comper = ('git', 'python-pip', 'python3-pip', 'python-build',
           'gcc', 'nginx', 'sysv-rc-conf',
@@ -16,22 +17,22 @@ def SSR_install(install_path = '/root'):
         config_url = os.path.join(work_path, 'ssr_config.json')
         trprint('Config file had found.')
         
-        if not os.path.exists(inst_path): os.makedirs(inst_path)
-        os.chdir(inst_path)
+        if not os.path.exists(install_path): os.makedirs(install_path)
+        os.chdir(install_path)
 
         ShellRun('git clone -b manyuser ' + SSR_giturl)
-        os.chdir(os.path.join(inst_path, 'shadowsocksr'))
+        os.chdir(os.path.join(install_path, 'shadowsocksr'))
 
         with open('update.sh', 'w') as f:
-            f.write('cd ' + os.path.join(inst_path, 'shadowsocksr') + '\n')
+            f.write('cd ' + os.path.join(install_path, 'shadowsocksr') + '\n')
             f.write('git pull\n')        
         reg_setup('00 00 * * *', 'bash ' + os.path.abspath('update.sh'))
         
-        ShellRun('bash %s', os.path.join(inst_path, 'shadowsocksr', 'initcfg.sh'))
-        shutil.move(config_url, os.path.join(inst_path, 'shadowsocksr', 'user-config.json'))
+        ShellRun('bash %s', os.path.join(install_path, 'shadowsocksr', 'initcfg.sh'))
+        shutil.move(config_url, os.path.join(install_path, 'shadowsocksr', 'user-config.json'))
         ShellRun('chmod +x *.sh')
     
-        os.chdir(os.path.join(inst_path, 'shadowsocksr', 'shadowsocks'))
+        os.chdir(os.path.join(install_path, 'shadowsocksr', 'shadowsocks'))
         ShellRun('chmod +x *.sh')
         ShellRun('sysv-rc-conf ' + os.path.abspath('logrun.sh') + ' on', hint = 'Adding the auto-start task successfully. ')
         try:
@@ -67,6 +68,7 @@ task_kill('apt-get')
 ShellRun('apt-get update')
 ShellRun('apt-get -y upgrade')
 for app in comper: apt_install(app)
+ShellRun('git clone https://github.com/frcskoh/AutoConfig.git')
 
 step = {
     'ssh_config' : SSH_config,
