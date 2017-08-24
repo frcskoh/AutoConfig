@@ -59,12 +59,13 @@ def pyenv_install():
 def SSH_config():
     try:
         with open('/etc/ssh/sshd_config', 'w+') as f:
-            f.write('ClientAliveInterval 30\n')
-            f.write('ClientAliveCountMax 10000\n')
+            f.append('ClientAliveInterval 300\n')
+            f.append('ClientAliveCountMax 10000\n')
     except IOError:
         trprint('ssh_config NOT found. ')
     else:
         trprint('Setting the ssh_config successfully. ')
+        ShellRun('sevice ssh restart')
 
 #init
 trprint("Now the file is in %s" % (work_path))

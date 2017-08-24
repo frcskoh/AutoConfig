@@ -1,15 +1,25 @@
 import os, sys, json
 from linux_oper import *
+work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+
+def receive():
+    trprint(os.path.join(work_path, 'setup_config.dat'))
+    config = None
+    try:
+        with open(os.path.join(work_path, 'setup_config.dat'), 'r') as f: json.load(config, f)
+    except IOError:
+        trprint('Error ! Config file not found. ')
+    else:
+        return config
 
 def gunicorn_start(config):
-    ShellRun('nohup gunicorn -w 4 --threads=4 --chdir=%s %s:%s -b %s:%s &' % (
+    ShellRun('nohup gunicorn -w 4 --threads=4 --chdir=%s %s:%s -b %s:%s \&' % (
             os.path.join(config['path'], config['project']), 
             config['main_file'], config['main_route'], 
             config['host'], config['local_port']))
-def stop():
+
+def stop(config):
     try:
-        with open('setup_config.dat', 'r') as f:
-            json.load(config, f)
         port_unlocker(config['port'])
     except:
         trprint('error ! Config file NOT found. ')
@@ -18,8 +28,7 @@ def stop():
         if input('Stop the nginx service ? (y/n)').lower() in ('y', 'yes'):
             ShellRun('nginx -s stop')
 
-def start():
-    global config
+def start(config):
     try:
         port_unlocker(config['port'])
         gunicorn_start(config)
@@ -33,8 +42,7 @@ def start():
         else:
             trprint('Task Started. ')
 
-def reload():
-    global config
+def reload(config):
     try:
         ShellRun('git pull -f')
         port_unlocker(config['port'])
@@ -51,13 +59,4 @@ def reload():
             print('Started the task successfullly. ')
 
 switch = {'start' : start, 'restart' : reload, 'stop' : stop}
-try:
-    try:
-        with open('setup_config.dat', 'r') as f: json.load(config, f)
-    except:
-        trprint('Error ! Config file not found. ')
-    else:
-        trprint('Found the config file. ')
-    switch[sys.argv[1]]()
-except:
-    print('Cannot find this command.')
+switch[sys.argv[1]](receive())

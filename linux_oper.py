@@ -27,9 +27,12 @@ def task_kill(name):
     k = os.popen('ps -aux').read().split('\n')[1:]
 
     for i in k:
-        if i.split()[10] == name:
-            os.system('kill -9 ' + i.split()[1])
-            trprint("Found and kill the %s.", i.split()[10])
+        try:
+            if i.split()[10] == name:
+                os.system('kill -9 ' + i.split()[1])
+                trprint("Found and kill the %s." & (i.split()[10]))
+        except:
+            pass
     trprint("Task %s has been kill. " % (name))
     
 def reg_setup(cof, command):
@@ -42,7 +45,7 @@ def reg_setup(cof, command):
         trprint("Added %s successfully." % (command))
 
 def pip_install(app_name, cof = ''):
-    ShellRun("%s pip3 install %s" % (cof, app_name))
+    ShellRun("%spip3 install %s" % (cof, app_name))
 
 def apt_install(app):
     try:

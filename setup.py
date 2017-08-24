@@ -31,27 +31,27 @@ def builder():
         if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup(config)
 
 def nginx_config(config):
-    work_path = os.path.join(path, project)
+    work_path = os.path.join(config['path'], config['project'])
     tab = 4
     try:
         with open(os.path.join('/etc/nginx/sites-enabled/', 'default'), 'w+') as f:
-            f.write('server {\n')
-            f.write(''.center(tab));f.write('listen %s;\n' % (config['public_port']))
-            f.write(''.center(tab));f.write('server_name %s;\n' % (config['ip']))
-            f.write(''.center(tab));f.write('location / {\n')
-            f.write(''.center(tab * 2));f.write('proxy_pass http://%s:%s;\n' & (config['localhost'], config['local_port']))
-            f.write(''.center(tab * 2));f.write('proxy_redirect     off;\n')
-            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Real-IP            $remote_addr;\n')
-            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;\n')
-            f.write(''.center(tab * 2));f.write('proxy_set_header   X-Forwarded-Proto    $scheme;\n')
-            f.write(''.center(tab));f.write('}\n')
-            f.write('}\n')
+            f.append('server {\n')
+            f.append(''.center(tab));f.append('listen %s;\n' % (config['public_port']))
+            f.append(''.center(tab));f.append('server_name %s;\n' % (config['ip']))
+            f.append(''.center(tab));f.append('location / {\n')
+            f.append(''.center(tab * 2));f.append('proxy_pass http://%s:%s;\n' & (config['localhost'], config['local_port']))
+            f.append(''.center(tab * 2));f.append('proxy_redirect     off;\n')
+            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Real-IP            $remote_addr;\n')
+            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;\n')
+            f.append(''.center(tab * 2));f.append('proxy_set_header   X-Forwarded-Proto    $scheme;\n')
+            f.append(''.center(tab));f.append('}\n')
+            f.append('}\n')
     except:
         print('Building the nginx config file error. ')
     else:
         info_trprint('Config the nginx successfully.')
         if not os.path.exists('/etc/nginx/sites-available/default'):
-            os.symlink('/etc/nginx/sites-enabled/default', '/etc/nginx/sites-available/default')
+            ShellRun('mklink -d /etc/nginx/sites-enabled/default' + ' /etc/nginx/sites-available/default')
                     
 def setup(config):
     safe_command = ('apt-get', 'pip', 'git')
@@ -73,27 +73,29 @@ def setup(config):
     #install
     os.chdir(os.path.join(config['path'], config['project']))
     pip_install('-r requirements.txt', 'ENV/bin/')
-
+    
     #Nginx config
     nginx_config(config)
-    shutil.copy(config_path, os.path.join(config['path'], config['project'], 'setup_config.dat'))
-
+    
     #manage
     shutil.copy(manage_path, os.path.join(config['path'], config['project'], 'manage.py'))
-
+    shutil.copy(oper_path, os.path.join(config['path'], config['project'], 'linux_oper.py'))
+    shutil.copy(config_path, os.path.join(config['path'], config['project'], 'setup_config.dat'))
     #start
     if input('Starting the service now ? (y/n)').lower() in ('y', 'yes'):
         os.chdir(os.path.join(config['path'], config['project']))
-        ShellRun('ENV/bin/python3 %s start' % (os.chdir(os.path.join(config['path'], config['project'], 'manage.py'))))
+        ShellRun('ENV/bin/python3 %s start' % (os.path.join(config['path'], config['project'], 'manage.py')))
 
 def reader():
     global work_path
     global config_path
     global manage_path
+    global oper_path
     if os.path.exists(os.path.join(work_path, 'setup_config.dat')):
         global config_path
         config_path = os.path.join(work_path, 'setup_config.dat')
         manage_path = os.path.join(work_path, 'manage.py')
+        oper_path = os.path.join(work_path, 'linux_oper.py')
         with open(config_path, 'r') as f:
             config = json.load(f)
         setup(config)
