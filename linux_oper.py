@@ -37,7 +37,7 @@ def task_kill(name):
     
 def reg_setup(cof, command):
     try:
-        with open('/etc/crontab', 'w+') as f:
+        with open('/etc/crontab', 'a+') as f:
             f.write("%s %s \n" % (cof, command))
     except:
         trprint("reg_setup Error.")

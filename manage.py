@@ -13,9 +13,9 @@ def receive():
         return config
 
 def gunicorn_start(config, thread = '4', worker = '4'):
-    ShellRun('nohup gunicorn -w %s --threads %s --chdir %s -b %s:%s %s:%s \&' % (
-            worker, thread, os.path.join(config['path'], config['project']),
-            config['host'], config['local_port'], 
+    os.chdir(os.path.join(config['path'], config['project']))
+    ShellRun('nohup gunicorn -w %s --threads %s -b %s:%s %s:%s \&' % (
+            worker, thread, config['host'], config['local_port'], 
             config['main_file'].split('.')[0], config['main_route']))
 
 def stop(config):
