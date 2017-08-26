@@ -22,7 +22,7 @@ def stop(config):
     try:
         port_unlocker(config['local_port'])
     except:
-        trprint('error ! Config file NOT found. ')
+        trprint('OS Error ! ')
     else:
         trprint('Web Service stopped.')
         if input('Stop the nginx service ? (y/n)').lower() in ('y', 'yes'):
@@ -31,9 +31,8 @@ def stop(config):
 def start(config):
     try:
         port_unlocker(config['local_port'])
-        
     except:
-        trprint('Read the config Error !')
+        trprint('OS Error !')
     else:
         gunicorn_start(config)
         try:

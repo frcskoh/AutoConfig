@@ -46,12 +46,12 @@ def nginx_config(config):
             f.write(''.center(tab * 2));f.write('proxy_set_header   X-Forwarded-Proto    $scheme;\n')
             f.write(''.center(tab));f.write('}\n')
             f.write('}\n')
-    except:
+    except IOError:
         print('Building the nginx config file error. ')
     else:
         info_trprint('Config the nginx successfully.')
         if not os.path.exists('/etc/nginx/sites-available/default'):
-            ShellRun('mklink -d /etc/nginx/sites-enabled/default' + ' /etc/nginx/sites-available/default')
+            ShellRun('mklink -d /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default')
                     
 def setup(config):
     global work_path
@@ -73,11 +73,8 @@ def setup(config):
     os.chdir(os.path.join(config['path'], config['project']))
 
     ShellRun("pyenv local %s" % (version))
-    ShellRun('virtualenv ENV')
-    
-    #install
-    os.chdir(os.path.join(config['path'], config['project']))
-    pip_install('-r requirements.txt', 'ENV/bin/')
+    ShellRun('pyenv virtualenv ENV_%s' % (config['project']))
+    pip_install('-r requirements.txt')
     
     #Nginx config
     nginx_config(config)
@@ -89,7 +86,7 @@ def setup(config):
     #start
     if input('Starting the service now ? (y/n)').lower() in ('y', 'yes'):
         os.chdir(os.path.join(config['path'], config['project']))
-        ShellRun('ENV/bin/python3 %s start' % (os.path.join(config['path'], config['project'], 'manage.py')))
+        ShellRun('python3 %s start' % (os.path.join(config['path'], config['project'], 'manage.py')))
 
 def reader():
     global work_path
@@ -101,8 +98,7 @@ def reader():
         config_path = os.path.join(work_path, 'setup_config.dat')
         manage_path = os.path.join(work_path, 'manage.py')
         oper_path = os.path.join(work_path, 'linux_oper.py')
-        with open(config_path, 'r') as f:
-            config = json.load(f)
+        with open(config_path, 'r') as f: config = json.load(f)
         setup(config)
     else:
         trprint('Config file does not exists.')    
