@@ -93,15 +93,18 @@ def reader():
     global config_path
     global manage_path
     global oper_path
+    manage_path = os.path.join(work_path, 'manage.py')
+    oper_path = os.path.join(work_path, 'linux_oper.py')
     if os.path.exists(os.path.join(work_path, 'setup_config.dat')):
         global config_path
         config_path = os.path.join(work_path, 'setup_config.dat')
-        manage_path = os.path.join(work_path, 'manage.py')
-        oper_path = os.path.join(work_path, 'linux_oper.py')
         with open(config_path, 'r') as f: config = json.load(f)
         setup(config)
     else:
         trprint('Config file does not exists.')    
 
 switch = {'install' : reader, 'build' : builder}
-switch[sys.argv[1]]()
+try:
+    switch[sys.argv[1]]()
+except:
+    pass
