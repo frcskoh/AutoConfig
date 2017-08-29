@@ -24,6 +24,7 @@ def receive():
     else:
         trprint('Found the config file. ')
         return config
+
 def builder():
     global work_path
     config = {}
@@ -79,7 +80,8 @@ def pyenv_install(version):
             return
     ShellRun('pyenv install %s' % (version))
 
-def setup(config):
+def setup():
+    config = receive()
     global work_path
     global config_path
     global manage_path
@@ -120,6 +122,6 @@ def setup(config):
 
 switch = {'install' : setup, 'build' : builder}
 try:
-    switch[sys.argv[1]](receive())
+    switch[sys.argv[1]]()
 except:
     trprint('A command does not exists. ')
