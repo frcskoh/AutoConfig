@@ -6,16 +6,17 @@ def trprint(content):
 def ShellRun(command, hint = None):
     trprint(command)
     try:
-        os.system(command)
+        output = os.popen(command)
         if hint:
             trprint(hint)
+        return(output)
     except:
         trprint('Error. Try to excute "%s" but failed. ', command)
 
 def get_ip():
-    from requests import get as get
+    from requests import get as Get
     try:
-        return get('http://checkip.dyndns.org/').text.split(':')[1].strip().split('<')[0]
+        return Get('http://checkip.dyndns.org/').text.split(':')[1].strip().split('<')[0]
     except:
         trprint('Network error. ')
     

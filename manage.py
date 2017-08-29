@@ -44,19 +44,19 @@ def start(config):
 
 def reload(config):
     try:
-        ShellRun('git pull -f')
         port_unlocker(config['local_port'])
+        ShellRun('git pull -f')
     except:
         trprint('Error !')
     else:
-        print('Updated the file and Killed the task')
+        trprint('Updated the file and Killed the task')
         try:
             os.system('nginx -s restart')
             gunicorn_start(config)
         except:
-            trprint('Error !')
+            trprint('Nginx restart Error !')
         else:
-            print('Started the task successfullly. ')
+            trprint('Started the task successfullly. ')
 
 switch = {'start' : start, 'restart' : reload, 'stop' : stop}
 switch[sys.argv[1]](receive())
