@@ -11,8 +11,8 @@ def receive():
     global config_path
     global manage_path
     global oper_path
-
-    work_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+    
+    work_path = os.path.join(config['path'], config['project'])
     manage_path = os.path.join(work_path, 'manage.py')
     oper_path = os.path.join(work_path, 'linux_oper.py')
     config_path = os.path.join(work_path, 'setup_config.dat')
@@ -38,20 +38,18 @@ def builder():
     config.update({'local_port' : input('Enter the local port : ')})
     config.update({'public_port' : input('Enter the public port : ')})
     
+    work_path = os.path.join(config['path'], config['project'])
     try:
         trprint('Creating the config file....')
-        global config_path
-        config_path = os.path.join(work_path, 'setup_config.dat')
-        with open(config_path, 'w') as f:
+        with open(os.path.join(work_path, 'setup_config.dat'), 'w') as f:
             json.dump(config, f)
     except:
         trprint('Error ! Building the config file failed. ')
     else:
         trprint('The config file created. ')
-        if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup(receive())
+        if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup()
 
 def nginx_config(config):
-    work_path = os.path.join(config['path'], config['project'])
     tab = 4
     try:
         with open(os.path.join('/etc/nginx/sites-enabled/', 'default'), 'a+') as f:
