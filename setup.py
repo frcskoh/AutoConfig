@@ -61,8 +61,8 @@ def nginx_config(config):
 def pyenv_install(version):
     p = re.compile('\(.*\)')
     for i in ShellRun('pyenv versions', output = True).read().split('\n'):
-        print(p.sub("", i.strip().strip('*')))
-        if p.sub("", i.strip().strip('*')) == version.strip().lower():
+        print(p.sub("", i).strip(' *'))
+        if p.sub("", i).strip(' *') == version.strip().lower():
             trprint('Python %s has been installed. ' % (version))
             return
     ShellRun('pyenv install %s' % (version))
