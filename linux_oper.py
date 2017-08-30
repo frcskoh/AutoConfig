@@ -13,9 +13,8 @@ def ShellRun(command, hint = None, output = False):
         else:
             os.system(command)
             if hint: trprint(hint)
-            return(output_text)
-    except:
-        trprint('Error. Try to excute "%s" but failed. ', command)
+    except OSError:
+        trprint('Error. Try to excute "%s" but failed. ' % (command))
 
 def get_ip():
     from requests import get as Get
