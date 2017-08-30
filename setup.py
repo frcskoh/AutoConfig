@@ -7,18 +7,8 @@ module = ('gunicorn', )
 safe_command = ('apt-get', 'pip', 'git')
 
 def receive():
-    global work_path
-    global config_path
-    global manage_path
-    global oper_path
-    
-    work_path = os.path.join(config['path'], config['project'])
-    manage_path = os.path.join(work_path, 'manage.py')
-    oper_path = os.path.join(work_path, 'linux_oper.py')
-    config_path = os.path.join(work_path, 'setup_config.dat')
-    
     try:
-        with open(config_path, 'r') as f: config = json.load(f)
+        with open('setup_config.dat', 'r') as f: config = json.load(f)
     except IOError:
         trprint('Config file does not exists.')
     else:
@@ -84,6 +74,11 @@ def setup():
     global app
     global module
     global safe_command
+
+    work_path = os.path.join(config['path'], config['project'])
+    manage_path = os.path.join(work_path, 'manage.py')
+    oper_path = os.path.join(work_path, 'linux_oper.py')
+    config_path = os.path.join(work_path, 'setup_config.dat')
     
     for i in safe_command: task_kill(i)
     for i in app: apt_install(i)
