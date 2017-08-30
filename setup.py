@@ -45,7 +45,6 @@ def builder():
         trprint('Error ! Building the config file failed. ')
     else:
         trprint('The config file created. ')
-        if input('Starting the setup now ? (y/n)').lower() in ('y', 'yes'): setup()
 
 def nginx_config(config):
     tab = 4
@@ -119,5 +118,5 @@ def setup():
 switch = {'install' : setup, 'build' : builder}
 try:
     switch[sys.argv[1]]()
-except:
+except KeyError:
     trprint('A command does not exists. ')
