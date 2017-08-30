@@ -7,9 +7,9 @@ def ShellRun(command, hint = None, output = False):
     trprint(command)
     try:
         if output:
-            os.system(command)
-        else:
             output_text = os.popen(command)
+        else:
+            os.system(command)
         if hint:
             trprint(hint)
         return(output_text)

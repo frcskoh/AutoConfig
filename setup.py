@@ -1,4 +1,4 @@
-import os, json, sys, shutil
+import os, json, sys, shutil, re
 from linux_oper import *
 version = "3.6.2"
 
