@@ -3,13 +3,16 @@ import os
 def trprint(content):
     os.system('echo ' + content + '\n')
     
-def ShellRun(command, hint = None):
+def ShellRun(command, hint = None, output = False):
     trprint(command)
     try:
-        output = os.popen(command)
+        if output:
+            os.system(command)
+        else:
+            output_text = os.popen(command)
         if hint:
             trprint(hint)
-        return(output)
+        return(output_text)
     except:
         trprint('Error. Try to excute "%s" but failed. ', command)
 
