@@ -81,7 +81,7 @@ def setup():
     oper_path = os.path.join(work_path, 'linux_oper.py')
     config_path = os.path.join(work_path, 'setup_config.dat')
     
-    for i in safe_command: task_kill(i)
+    #for i in safe_command: task_kill(i)
     for i in app: apt_install(i)
     for i in module: pip_install(i)
 
