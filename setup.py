@@ -26,7 +26,6 @@ def receive():
         return config
 
 def builder():
-    global work_path
     config = {}
     config.update({'path' : input('Enter the root path : ')})
     config.update({'git_URL' : input('Enter the URL of the git : ')})
@@ -38,10 +37,9 @@ def builder():
     config.update({'local_port' : input('Enter the local port : ')})
     config.update({'public_port' : input('Enter the public port : ')})
     
-    work_path = os.path.join(config['path'], config['project'])
     try:
         trprint('Creating the config file....')
-        with open(os.path.join(work_path, 'setup_config.dat'), 'w') as f:
+        with open('setup_config.dat', 'w') as f:
             json.dump(config, f)
     except:
         trprint('Error ! Building the config file failed. ')
