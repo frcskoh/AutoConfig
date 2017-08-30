@@ -59,8 +59,9 @@ def nginx_config(config):
             ShellRun('mklink -d /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default')
 
 def pyenv_install(version):
-    for i in ShellRun('pyenv versions').read().split('\n').strip():
-        if i == version:
+    for i in ShellRun('pyenv versions').read().split('\n'):
+        print(i.strip())
+        if i.strip().lower() == version.strip().lower():
             trprint('Python %s has been installed. ' % (version))
             return
     ShellRun('pyenv install %s' % (version))
@@ -90,7 +91,7 @@ def setup():
 
     pyenv_install(version)
     os.system('git clone %s' % (config['git_URL']))
-    os.chdir(os.path.join(config['path'], config['project']))
+    os.chdir(work_path)
 
     ShellRun('pyenv local %s' % (version))
     ShellRun('pyenv virtualenv ENV_%s' % (config['project']))
